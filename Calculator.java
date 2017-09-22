@@ -1,170 +1,118 @@
 import java.util.Scanner;
+import java.lang.Math;
 
 public class Calculator
 {
 	public Calculator() {
 	}
+	Scanner keyboard = new Scanner(System.in);
+	
 	
 	public static void main(String[] args) {
         Calculator calc = new Calculator();
-        calc.integrate();
+        calc.intro();
+        double[] coefs = calc.createFunction();
+        double[] bounds = calc.generateBounds();
+        System.out.println(calc.integrate(bounds, coefs));
     }
-    
-	boolean knowEq = false;
-	double a = 0;
-	double b = 0;
-	double c = 0;
-	double d = 0;
-	Scanner keyboard = new Scanner(System.in);
-	double upperBound = 0;
-	double lowerBound = 0;
 
-    public void integrate() {
+    public void intro() {
     	System.out.println("/////////////////////////");
     	System.out.println("/                       /");
     	System.out.println("/ INTEGRAL APPROXIMATOR /");
    		System.out.println("/                       /");
-   		System.out.println("/////////////////////////");
-   		System.out.println();
-   		System.out.println();
-   		System.out.println();
-   		System.out.println("Do you want to approximate a cubic or quadratic equation?\nType \"cubic\" or \"quadratic\".");
-		String answer = keyboard.nextLine();
-		while (knowEq == false) {
-			if (answer.equals("cubic") || answer.equals("Cubic")) {
-				System.out.println(integrateCube(createCubicEquation()));
-				//call thing to approximate the equation
-				knowEq = true;
-			}
-			else if (answer.equals("quadratic") || answer.equals("Quadratic")) {
-				System.out.println(integrateQuad(createQuadraticEquation()));
-				//call thing to approximate the equation
-				knowEq = true;
-			}
-			else {
-				System.out.println();
-				System.out.println("Sorry, I didn't quite catch that.\nMake sure your answer is either \"cubic\" or \"quadratic\".");
-				System.out.println("Do you want to approximate a cubic or quadratic equation?");
-				answer = keyboard.nextLine();
-			}
-		}
+   		System.out.println("/////////////////////////\n\n");
+    }
+    
+    public double[] createFunction() {
+    	int answer = 0;
+    	System.out.println("How many terms are in the function you want to integrate?");
+   		try {
+   			answer = keyboard.nextInt();   
+   		} catch (Exception e) {
+   		    System.err.println("ERROR: Invalid input.");
+   		}
+   		if (answer == 0) {
+   			throw new IllegalArgumentException("Invalid function. Number of terms must be greater than 0.");
+   		}
+   		double[] nums = new double[answer];
+    	for (int i = answer - 1; i > 0; i--) {
+    		System.out.println("\nWhat is the coefficient for x^" + (i) + "?");
+    		nums[i] = keyboard.nextDouble();
+    	}
+    	System.out.println("\nWhat is the constant?");
+    	nums[0] = keyboard.nextDouble();
+    	System.out.println("\nHere is the function you're integrating: \n" + toString(nums));
+    	return nums;
+    }
+    
+    public double[] generateBounds() {
+    	double[] bounds = new double[3];
+    	System.out.println("\nWhat's the lower bound of the interval?");
+    	bounds[0] = keyboard.nextDouble();
+    	System.out.println("\nWhat's the upper bound?");
+    	bounds[1] = keyboard.nextDouble();
+    	if (bounds[1] < bounds[0]){
+    		double tmp = bounds[1];
+    		bounds[1] = bounds[0];
+    		bounds[0] = tmp;
+    	}
+    	System.out.println("\nHow many trapezoids?");
+    	bounds[2] = keyboard.nextDouble();
+    	System.out.print("\nThe integral of the equation is approximately ");
+    	return bounds;
+    }
+    
+    public double integrate(double[] bounds, double[] coefs) {
+    	double y1 = 0;
+    	double y2 = 0;
+    	double area = 0;
+    	//distance i must increment each time to have the appropriate number of trapezoids
+    	double increment = (bounds[1] - bounds[0]) / bounds[2];
+    	//finds the total area
+    	for (double i = bounds[0]; i <= bounds[1] - increment; i += increment) {
+    		//creates a value for y1
+    		for (double j = 1; j < coefs.length; j++) {
+    			y1 += coefs[(int)j] * Math.pow(i, j);
+    		}
+    		y1 += coefs[0];
+    		//creates a value for y2
+    		for (double j = 1; j < coefs.length; j++) {
+    			y2 += coefs[(int)j] * Math.pow(i + increment, j);
+    		}
+    		y2 += coefs[0];
+    		//applying trapezoid area equation
+    		area += ((y1 + y2) / 2) * increment;
+    		y1 = 0;
+    		y2 = 0;
+    	}
+    	area *= 100000;
+    	area = (int)area;
+    	area = (double)area;
+    	area /= 100000;
+    	return area;
     }
 
-	public double[] createCubicEquation(){
-		double[] eq = new double[4];
-		System.out.println();
-		System.out.println("Okay, please input the variables of the equation, following this form: \nax^3 + bx^2 + cx + d");
-		System.out.print("a = ");
-		a = keyboard.nextDouble();
-		System.out.println();
-		System.out.print("b = ");
-		b = keyboard.nextDouble();
-		System.out.println();
-		System.out.print("c = ");
-		c = keyboard.nextDouble();
-		System.out.println();
-		System.out.print("d = ");
-		d = keyboard.nextDouble();
-		System.out.println();
-		eq[0] = a;
-		eq[1] = b;
-		eq[2] = c;
-		eq[3] = d;
-		return eq;
-	}
-		
-	public double[] createQuadraticEquation(){
-		double[] eq = new double[3];
-		System.out.println();
-		System.out.println("Okay, please input the variables of the equation, following this form: \nax^2 + bx + c");
-		System.out.print("a = ");
-		a = keyboard.nextDouble();
-		System.out.println();
-		System.out.print("b = ");
-		b = keyboard.nextDouble();
-		System.out.println();
-		System.out.print("c = ");
-		c = keyboard.nextDouble();
-		System.out.println();
-		eq[0] = a;
-		eq[1] = b;
-		eq[2] = c;
-		return eq;
-	}
-
-    public double integrateCube(double[] eq){
-    	System.out.println();
-    	System.out.println("This is the equation being integrated : ");
-    	System.out.println(eq[0] + "x^3 + " + eq[1] + "x^2 + " + eq[2] + "x + " + eq[3]);
-    	System.out.println();
-    	System.out.println("What's the lower bound of the interval?");
-    	lowerBound = keyboard.nextDouble();
-    	System.out.println();
-    	System.out.println("What's the upper bound?");
-    	upperBound = keyboard.nextDouble();
-    	if (upperBound < lowerBound){
-    		double tmp = upperBound;
-    		upperBound = lowerBound;
-    		lowerBound = tmp;
+    public String toString(double[] nums) {
+    	StringBuilder sb = new StringBuilder();
+    	if (nums[nums.length - 1] < 0) {
+    		sb.append("-");
     	}
-    	System.out.println();
-    	System.out.print("The integral of the equation is approximately");
-    	return(sumCube(eq, upperBound, lowerBound));
-    }
-
-    public double integrateQuad(double[]eq){
-    	System.out.println();
-    	System.out.println("This is the equation being integrated : ");
-    	System.out.println(eq[0] + "x^2 + " + eq[1] + "x + " + eq[2]);
-    	System.out.println();
-    	System.out.println("What's the lower bound of the interval?");
-    	lowerBound = keyboard.nextDouble();
-    	System.out.println();
-    	System.out.println("What's the upper bound?");
-    	upperBound = keyboard.nextDouble();
-    	if (upperBound < lowerBound){
-    		double tmp = upperBound;
-    		upperBound = lowerBound;
-    		lowerBound = tmp;
+    	for (int i = nums.length - 1; i > 0; i--) {
+    		if(nums[i] != 0) {
+    			sb.append(Math.abs(nums[i]) + "x^" + (i));
+    		}
+    		if (nums[i - 1] < 0) {
+    			sb.append(" - ");
+    		} else if (nums[i - 1] > 0) {
+    			sb.append(" + ");
+    		}
     	}
-    	System.out.println();
-    	System.out.print("The integral of the equation is approximately");
-    	return(sumQuad(eq, upperBound, lowerBound));
-    }
-
-	public double sumQuad(double[]eq, double up, double low){
-    	double integral = 0.0;
-    	for (double i = low; i < up; i += .25){
-    		double k = i +.25;
-    		double point1 = 0;
-    		double point2 = 0;
-    		point1 += i*i*eq[0];
-    		point1 += i*eq[1];
-    		point1 += eq[2];
-    		point2 += k*k*eq[0];
-    		point2 += k*eq[1];
-    		point2 += eq[2];
-    		integral += ((point1 + point2)/2)*.25;
+    	if (nums[0] == 0) {
+			return sb.toString();
+		} else {
+    		sb.append(Math.abs(nums[0]));
     	}
-    	return integral;
-    }
-
-    public double sumCube(double[]eq, double up, double low){
-    	double integral = 0.0;
-    	for (double i = low; i < up; i += .25){
-    		double k = i +.25;
-    		double point1 = 0;
-    		double point2 = 0;
-    		point1 += i*i*i*eq[0];
-    		point1 += i*i*eq[1];
-    		point1 += i*eq[2];
-    		point1 += eq[3];
-    		point2 += k*k*k*eq[0];
-    		point2 += k*k*eq[1];
-    		point2 += k*eq[2];
-    		point2 += eq[3];
-    		integral += ((point1 + point2)/2)*.25;
-    	}
-    	return integral;
+    	return sb.toString();
     }
 }
