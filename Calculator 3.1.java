@@ -9,19 +9,9 @@ public class Calculator {
 
 	public static void main(String[] args) {
 		Calculator calc = new Calculator();
-		calc.intro();
 		double[] coefs = calc.createFunction();
 		double[] bounds = calc.generateBounds();
 		System.out.print("\nThe integral of the equation is approximately " + calc.integrate(bounds, coefs));
-	}
-
-	public void intro() {
-		// nothing says "employable" like mastery of ASCII art!
-		System.out.println("/////////////////////////");
-		System.out.println("/                       /");
-		System.out.println("/ INTEGRAL APPROXIMATOR /");
-		System.out.println("/                       /");
-		System.out.println("/////////////////////////\n\n");
 	}
 
 	public double[] createFunction() {
