@@ -3,7 +3,7 @@ import java.lang.Math;
 
 public class Calculator {
 
-	public double calculateIntegral() {
+	public double calculateIntegralFromInput() {
 		InputHandler inputHandler = new InputHandler(new Scanner(System.in));
 		Function function = inputHandler.getFunction();
 		double[] bounds = inputHandler.getBounds();
@@ -11,7 +11,11 @@ public class Calculator {
 		return integrate(function, bounds, numberOfTrapezoids);
 	}
 
-	public double integrate(Function function, double[] bounds, int numberOfTrapezoids) {
+	public double calculateIntegral(Function function, double[] bounds, int numberOfTrapezoids) {
+		return integrate(function, bounds, numberOfTrapezoids);
+	}
+
+	private double integrate(Function function, double[] bounds, int numberOfTrapezoids) {
 		double area = 0;
 		double increment = (bounds[1] - bounds[0]) / numberOfTrapezoids;
 		// finds the total area, where x is the x value of the trapezoids
