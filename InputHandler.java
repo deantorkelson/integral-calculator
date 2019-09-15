@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class InputHandler {
@@ -61,18 +62,26 @@ public class InputHandler {
 
     // Error-handling functions for getting input
     private int getSafeInputInt() {
-        try {
-            return keyboard.nextInt();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("ERROR: Invalid input.");
+        while (true) {
+            int input;
+            try {
+                input = keyboard.nextInt();
+                return input;
+            } catch (InputMismatchException e) {
+                System.out.println("Error: invalid input. Please try again.");
+                keyboard.nextLine();
+            }
         }
     }
 
     private double getSafeInputDouble() {
-        try {
-            return keyboard.nextDouble();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("ERROR: Invalid input.");
+        while (true) {
+            try {
+                return keyboard.nextDouble();
+            } catch (Exception e) {
+                System.out.println("Error: invalid input. Please try again.");
+                keyboard.nextLine();
+            }
         }
     }
 }
